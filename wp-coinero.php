@@ -47,9 +47,7 @@ class Coinero
         $my_css_ver = date("ymd-Gis", filemtime(plugin_dir_path(__FILE__) . 'assets/custom.css'));
         $my_js_ver = date("ymd-Gis", filemtime(plugin_dir_path(__FILE__) . 'assets/custom.js'));
 
-        wp_register_style('wp-coinero-jquery-ui', plugins_url('assets/libs/jquery-ui/jquery-ui.css', __FILE__), [], '1.12.1');
-
-        wp_enqueue_style('wp-coinero', plugins_url('assets/custom.css', __FILE__), ['wp-coinero-jquery-ui'], $my_css_ver);
+        wp_enqueue_style('wp-coinero', plugins_url('assets/custom.css', __FILE__), [], $my_css_ver);
 
         wp_register_script('wp-coinero', plugins_url('assets/custom.js', __FILE__), [], $my_js_ver, true);
         wp_localize_script('wp-coinero', 'wp_coinero_ajax_data', [
@@ -74,8 +72,8 @@ class Coinero
 
         // Datatables
         if (apply_filters('wp-coinero-need-datatables', true)) {
-            wp_enqueue_style('datatables', plugins_url('assets/libs/datatables-1.10.16/datatables.css', __FILE__), ['wp-coinero-jquery-ui'], '1.10.16');
-            wp_register_script('datatables', plugins_url('assets/libs/datatables-1.10.16/datatables.js', __FILE__), ['jquery', 'jquery-ui-dialog', 'authedmine-javascript-miner'], '1.10.16', true);
+            wp_enqueue_style('datatables', plugins_url('assets/libs/datatables-1.10.16/datatables.css', __FILE__), [], '1.10.16');
+            wp_register_script('datatables', plugins_url('assets/libs/datatables-1.10.16/datatables.js', __FILE__), ['jquery'], '1.10.16', true);
         }
     }
 }

@@ -3,38 +3,39 @@
   .coinero-widget.coinero-javascript-miner.debug {
     display: inline; }
 
-.wp-coinero-jquery-ui .ui-dialog .loading-wrapper {
-  text-align: center;
-  margin-bottom: 20px;
-  margin-top: 20px;
-  line-height: 40px;
-  font-size: 1.5em; }
-  .wp-coinero-jquery-ui .ui-dialog .loading-wrapper .loading {
+.jquery-modal .modal {
+  max-width: 1000px;
+  width: 96%; }
+  .jquery-modal .modal .loading-wrapper {
     text-align: center;
-    font-size: 12px;
-    line-height: 16px;
-    border: 2px solid silver;
-    border-left-color: red;
-    border-right-color: gold;
-    border-radius: 100%;
-    width: 40px;
-    height: 40px;
-    display: inline-block;
-    margin: 20px;
-    animation-name: wp-coinero-rotation;
-    animation-duration: 2s;
-    animation-iteration-count: infinite;
-    animation-timing-function: linear; }
-.wp-coinero-jquery-ui .ui-dialog .loading-finished-wrapper {
-  display: none;
-  text-align: center;
-  margin-bottom: 20px;
-  margin-top: 20px; }
-  .wp-coinero-jquery-ui .ui-dialog .loading-finished-wrapper p {
+    margin-bottom: 20px;
+    margin-top: 20px;
     line-height: 40px;
     font-size: 1.5em; }
-.wp-coinero-jquery-ui .ui-widget-overlay {
-  opacity: 0.8; }
+    .jquery-modal .modal .loading-wrapper .loading {
+      text-align: center;
+      font-size: 12px;
+      line-height: 16px;
+      border: 2px solid silver;
+      border-left-color: red;
+      border-right-color: gold;
+      border-radius: 100%;
+      width: 40px;
+      height: 40px;
+      display: inline-block;
+      margin: 20px;
+      animation-name: wp-coinero-rotation;
+      animation-duration: 2s;
+      animation-iteration-count: infinite;
+      animation-timing-function: linear; }
+  .jquery-modal .modal .loading-finished-wrapper {
+    display: none;
+    text-align: center;
+    margin-bottom: 20px;
+    margin-top: 20px; }
+    .jquery-modal .modal .loading-finished-wrapper p {
+      line-height: 40px;
+      font-size: 1.5em; }
 
 @keyframes wp-coinero-rotation {
   from {
