@@ -3,6 +3,14 @@
   .coinero-widget.coinero-javascript-miner.debug {
     display: inline; }
 
+.coinero-download-container .script-blocker-modal {
+  background-color: red;
+  color: white;
+  padding: 10px; }
+
+.coinero-downloads-list .download-date {
+  font-size: 0.8em; }
+
 .jquery-modal .modal {
   max-width: 1000px;
   width: 96%; }

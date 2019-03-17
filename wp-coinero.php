@@ -3,9 +3,9 @@
 Plugin Name:  WP Coinero
 Plugin URI:   https://moewe.io/wordpress-products/wp-coinero
 Description:  Use Coinhive to generate Moneros and avoid spam ...
-Version:      1.0
+Version:      1.1
 Author:       MOEWE
-Author URI:   https://moewe.io/
+Author URI:   https://www.moewe.io/
 Contributors: adrian2k7
 Text Domain:  wp-coinero
 */
@@ -72,8 +72,11 @@ class Coinero
 
         // Datatables
         if (apply_filters('wp-coinero-need-datatables', true)) {
-            wp_enqueue_style('datatables', plugins_url('assets/libs/datatables-1.10.16/datatables.css', __FILE__), [], '1.10.16');
-            wp_register_script('datatables', plugins_url('assets/libs/datatables-1.10.16/datatables.js', __FILE__), ['jquery'], '1.10.16', true);
+            wp_enqueue_style('datatables', plugins_url('assets/libs/datatables-1.10.18/datatables.css', __FILE__), [], '1.10.18');
+            wp_enqueue_style('datatables-responsive', plugins_url('assets/libs/datatables-1.10.18/Responsive-2.2.2/css/responsive.dataTables.css', __FILE__), ['datatables'], '2.2.2');
+
+            wp_register_script('datatables', plugins_url('assets/libs/datatables-1.10.18/datatables.js', __FILE__), ['jquery'], '1.10.18', true);
+            wp_register_script('datatables-responsive', plugins_url('assets/libs/datatables-1.10.18/Responsive-2.2.2/js/dataTables.responsive.js', __FILE__), ['datatables'], '2.2.2', true);
         }
     }
 }

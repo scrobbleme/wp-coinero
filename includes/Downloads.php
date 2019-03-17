@@ -19,6 +19,8 @@ class Coinero_Downloads extends Coinero_CustomizerSupport
         add_action('customize_register', [$this, 'customize_register']);
         add_action('wp-coinero-render-download-modal-text', [$this, 'render_custom_text']);
 
+        add_filter('the_content', [$this, 'add_download_button_to_content']);
+
         add_shortcode('coinhive_downloads', [$this, 'render_downloads_shortcode']);
 
         $this->fields = array(
@@ -246,7 +248,7 @@ class Coinero_Downloads extends Coinero_CustomizerSupport
     {
         $custom_text = $this->get_option('custom-text');
         if ($custom_text && !empty($custom_text)) {
-            echo '<div class="custom-text">' . $custom_text . '</div>';
+            echo '<div class="custom-text">' . do_shortcode($custom_text) . '</div>';
         }
     }
 
@@ -256,24 +258,25 @@ class Coinero_Downloads extends Coinero_CustomizerSupport
         wp_enqueue_style('jquery-modal');
 
         wp_enqueue_script($script_prefix . '-javascript-miner');
+        wp_enqueue_script($script_prefix . '-captcha');
         wp_enqueue_script('datatables');
         wp_enqueue_script('jquery-modal');
         wp_enqueue_script('wp-coinero');
         ob_start();
         ?>
         <div class="coinero-downloads-list">
-            <table>
+            <table class="display responsive">
                 <thead>
                 <tr>
-                    <th><?php _e('Updated', 'wp-coinero') ?></th>
                     <th><?php _e('Name', 'wp-coinero') ?></th>
+                    <th class="not-mobile"><?php _e('Updated', 'wp-coinero') ?></th>
                     <th><?php _e('Actions', 'wp-coinero') ?></th>
                 </tr>
                 </thead>
                 <tfoot>
                 <tr>
-                    <th><?php _e('Updated', 'wp-coinero') ?></th>
                     <th><?php _e('Name', 'wp-coinero') ?></th>
+                    <th><?php _e('Updated', 'wp-coinero') ?></th>
                     <th><?php _e('Actions', 'wp-coinero') ?></th>
                 </tr>
                 </tfoot>
@@ -285,8 +288,8 @@ class Coinero_Downloads extends Coinero_CustomizerSupport
                     'post_status' => array('publish'),
                     'nopaging' => true,
                     'posts_per_page' => '-1',
-                    'order' => 'DESC',
-                    'orderby' => 'modified',
+                    'order' => 'ASC',
+                    'orderby' => 'title',
                 );
 
                 $args = apply_filters('wp-coinero-downloads-list-query-arguments', $args);
@@ -295,20 +298,10 @@ class Coinero_Downloads extends Coinero_CustomizerSupport
                     while ($query->have_posts()) {
                         $query->the_post();
                         echo '<tr>';
-                        echo '<td data-order="' . get_the_modified_time('U') . '">' . get_the_modified_date(get_option('date_format')) . '</td>';
-                        echo '<td><a href="' . get_permalink() . '" title="' . esc_attr(get_the_title()) . '">' . get_the_title() . '</a></td>';
+                        echo '<td data-filter="' . esc_attr(get_the_title()) . '"><a href="' . get_permalink() . '" title="' . esc_attr(get_the_title()) . '">' . get_the_title() . '</a></td>';
+                        echo '<td class="download-date" data-order="' . get_the_modified_time('U') . '">' . get_the_modified_date(get_option('date_format')) . '</td>';
                         echo '<td>';
-                        $direct = get_post_meta(get_the_ID(), 'options_coinero_direct_download', true);
-                        if ($direct) {
-                            $href = add_query_arg(array(
-                                'action' => 'wp_coinero_get_download_dialog',
-                                'id' => get_the_ID(),
-                            ), admin_url('admin-ajax.php'));
-
-                            echo '<a href="' . $href . '" rel="modal:open"><button class="button" title="' . esc_attr__('Download: ', 'wp-coinero') . esc_attr(get_the_title()) . '" data-id="' . get_the_ID() . '">' . __('Download', 'wp-coinero') . '</button></a>';
-                        } else {
-                            echo '<a class="button" href="' . get_the_permalink() . '">' . __('View details', 'wp-coinero') . '</a>';
-                        }
+                        $this->render_download_button(get_the_ID());
                         echo '</td>';
                         echo '</tr>';
                     }
@@ -324,11 +317,44 @@ class Coinero_Downloads extends Coinero_CustomizerSupport
         return ob_get_clean();
     }
 
+    function add_download_button_to_content($content)
+    {
+        if (is_singular('coinero_download')) {
+            wp_enqueue_style('jquery-modal');
+
+            $script_prefix = $this->get_option('use-authedmine', true) ? 'authedmine' : 'coinhive';
+            wp_enqueue_script($script_prefix . '-javascript-miner');
+            wp_enqueue_script($script_prefix . '-captcha');
+            wp_enqueue_script('jquery-modal');
+            wp_enqueue_script('wp-coinero');
+            ob_start();
+            $this->render_download_button(get_the_ID());
+            return ob_get_clean() . '<br /><br />' . $content;
+        }
+        return $content;
+    }
+
+
+    function render_download_button($download_id)
+    {
+        $direct = get_post_meta($download_id, 'options_coinero_direct_download', true);
+        if ($direct) {
+            $href = add_query_arg(array(
+                'action' => 'wp_coinero_get_download_dialog',
+                'id' => $download_id,
+            ), admin_url('admin-ajax.php'));
+
+            echo '<a href="' . $href . '" rel="modal:open"><button class="button" title="' . esc_attr__('Download: ', 'wp-coinero') . esc_attr(get_the_title($download_id)) . '" data-id="' . $download_id . '">' . __('Download', 'wp-coinero') . '</button></a>';
+        } else {
+            echo '<a class="button" href="' . get_the_permalink($download_id) . '">' . __('View details', 'wp-coinero') . '</a>';
+        }
+    }
+
     function get_download_dialog()
     {
-        $id = uniqid();
+        $id = 'coinero-' . esc_attr(uniqid());
         $file = isset($_GET['id']) ? $_GET['id'] : -1;
-        $hashes = $this->get_option('hashes', 1024);
+        $hashes = absint($this->get_option('hashes', 1024));
         $sitekey = $this->get_sitekey();
 
         if (get_post_meta($file, 'options_coinero_redirect_download', true)) {
@@ -349,8 +375,16 @@ class Coinero_Downloads extends Coinero_CustomizerSupport
         ?>
         <div id="<?php echo $id ?>" class="coinero-download-container">
             <div class="loading-wrapper">
-                <p><?php _e('Preparing your download. Please wait.', 'wp-coinero') ?></p>
-                <span class="loading slow" style="color: transparent;">0%</span>
+                <p><?php _e('Please press "Verify me" to prepare your download.', 'wp-coinero') ?></p>
+                <div id="<?php echo $id ?>-captcha" class="captcha-container" data-hashes="<?php echo $hashes ?>"
+                     data-key="<?php esc_attr_e($sitekey) ?>" data-whitelabel="false" data-autostart="true">
+                    <noscript><?php _e('You have to disable your script blocker to download the file.', 'wp-coinero') ?></noscript>
+                    <span class="loading slow" style="color: transparent;">0%</span>
+                </div>
+            </div>
+            <div class="script-blocker-modal"
+                 style="display: none;">
+                <p><?php _e('You have to disable your script blocker or allow authedmine.com/coinhive.com to download the file.', 'wp-coinero') ?></p>
             </div>
 
             <div class="loading-finished-wrapper">
@@ -363,9 +397,7 @@ class Coinero_Downloads extends Coinero_CustomizerSupport
             </div>
             <?php do_action('wp-coinero-render-download-modal-text'); ?>
             <script>
-                let container = jQuery('#<?php echo $id ?>');
-                let targetHashes = <?php echo $hashes ?>;
-                wp_coinero_prepare_download(container, '<?php echo $sitekey ?>', targetHashes);
+                wp_coinero_prepare_download_captcha('<?php echo $id ?>');
             </script>
         </div>
         <?php
