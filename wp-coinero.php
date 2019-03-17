@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name:  WP Coinero
-Plugin URI:   https://moewe.io/wordpress-products/wp-coinero
+Plugin URI:   https://moewe.io/
 Description:  Use Coinhive to generate Moneros and avoid spam ...
 Version:      1.1
 Author:       MOEWE
